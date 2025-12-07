@@ -1,0 +1,13 @@
+# Windows generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+
+# PowerShell
+*.ps1xml
+
+# Logs
+*.log
