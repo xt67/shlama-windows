@@ -33,13 +33,13 @@ param(
     [switch]$Help,
     
     [Alias("v")]
-    [switch]$Version
+    [switch]$ShowVersion
 )
 
 # Configuration
 $script:MODEL = if ($env:SHLAMA_MODEL) { $env:SHLAMA_MODEL } else { "llama3.2" }
 $script:OLLAMA_HOST = if ($env:OLLAMA_HOST) { $env:OLLAMA_HOST } else { "http://localhost:11434" }
-$script:VERSION = "1.0.0"
+$script:SHLAMA_VERSION = "1.0.0"
 
 # Colors
 function Write-ColorOutput {
@@ -72,7 +72,7 @@ function Show-Help {
 
 # Show version
 function Show-Version {
-    Write-Host "shlama v$script:VERSION (Windows)"
+    Write-Host "shlama v$script:SHLAMA_VERSION (Windows)"
 }
 
 # Check if Ollama is running
@@ -128,7 +128,7 @@ function Main {
         return
     }
     
-    if ($Version) {
+    if ($ShowVersion) {
         Show-Version
         return
     }
