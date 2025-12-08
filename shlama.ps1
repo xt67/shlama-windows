@@ -175,19 +175,20 @@ function Start-OllamaIfNeeded {
         return $true
     }
     
-    # Try to start Ollama
+    # Check if OLLAMA_HOST points to remote (like WSL using Windows Ollama)
+    if ($script:OLLAMA_HOST -ne "http://localhost:11434" -and $script:OLLAMA_HOST -notmatch "127\.0\.0\.1") {
+        # Remote Ollama - can't auto-start, just fail
+        return $false
+    }
+    
+    # Try to start Ollama silently
     Write-Host "Starting Ollama..." -ForegroundColor Yellow
     
-    # Try different methods to start Ollama
     $ollamaApp = "$env:LOCALAPPDATA\Programs\Ollama\ollama app.exe"
-    $ollamaExe = "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe"
     
     if (Test-Path $ollamaApp) {
-        # Start the Ollama app (GUI with tray icon)
-        Start-Process $ollamaApp -ErrorAction SilentlyContinue
-    } elseif (Test-Path $ollamaExe) {
-        # Fall back to ollama serve
-        Start-Process $ollamaExe -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
+        # Start Ollama app minimized - it will go to system tray
+        $proc = Start-Process $ollamaApp -PassThru -WindowStyle Minimized -ErrorAction SilentlyContinue
     } else {
         # Try from PATH
         Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
