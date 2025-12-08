@@ -159,15 +159,40 @@ function Change-Model {
     }
 }
 
-# Check if Ollama is running
+# Check if Ollama is running, start if not
 function Test-Ollama {
     try {
-        $response = Invoke-RestMethod -Uri "$script:OLLAMA_HOST/api/tags" -Method Get -TimeoutSec 5 -ErrorAction Stop
+        $response = Invoke-RestMethod -Uri "$script:OLLAMA_HOST/api/tags" -Method Get -TimeoutSec 2 -ErrorAction Stop
         return $true
     }
     catch {
         return $false
     }
+}
+
+function Start-OllamaIfNeeded {
+    if (Test-Ollama) {
+        return $true
+    }
+    
+    # Try to start Ollama
+    Write-Host "Starting Ollama..." -ForegroundColor Yellow
+    
+    # Start Ollama in background
+    Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    
+    # Wait for it to start (max 10 seconds)
+    $attempts = 0
+    while ($attempts -lt 20) {
+        Start-Sleep -Milliseconds 500
+        if (Test-Ollama) {
+            Write-Host "[OK] Ollama started" -ForegroundColor Green
+            return $true
+        }
+        $attempts++
+    }
+    
+    return $false
 }
 
 # Generate command from natural language
@@ -233,15 +258,15 @@ function Main {
         return
     }
     
-    # Check if Ollama is running
-    if (-not (Test-Ollama)) {
-        Write-ColorOutput "Error: Ollama is not running." "Red"
-        Write-ColorOutput "Start it with: ollama serve" "Yellow"
+    # Start Ollama if not running
+    if (-not (Start-OllamaIfNeeded)) {
+        Write-ColorOutput "Error: Ollama is not running and could not be started." "Red"
+        Write-ColorOutput "Install Ollama from https://ollama.com" "Yellow"
         return
     }
     
     # Generate command
-    Write-ColorOutput "🦙 Thinking..." "Cyan"
+    Write-ColorOutput "[llama] Thinking..." "Cyan"
     $suggestedCommand = Get-SuggestedCommand -Prompt $requestText
     
     if ([string]::IsNullOrWhiteSpace($suggestedCommand)) {
