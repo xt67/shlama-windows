@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    shlama - Your terminal llama. Natural language → safe Windows commands.
+    shlama - Your terminal llama. Natural language -> safe Windows commands.
 
 .DESCRIPTION
     shlama is a CLI tool that converts natural language into shell commands 
@@ -72,7 +72,7 @@ function Write-ColorOutput {
 # Show help
 function Show-Help {
     Write-Host ""
-    Write-ColorOutput "🦙 shlama - Your terminal llama" "Cyan"
+    Write-ColorOutput "[llama] shlama - Your terminal llama" "Cyan"
     Write-Host ""
     Write-Host "Usage: shlama `"<natural language request>`""
     Write-Host ""
@@ -104,7 +104,7 @@ function Show-Version {
 # Change model
 function Change-Model {
     Write-Host ""
-    Write-ColorOutput "🤖 Select AI Model" "Cyan"
+    Write-ColorOutput "[robot] Select AI Model" "Cyan"
     Write-Host ""
     Write-Host "Current model: $script:MODEL"
     Write-Host ""
@@ -144,7 +144,7 @@ function Change-Model {
     }
     Set-Content -Path $script:CONFIG_FILE -Value $newModel
     
-    Write-ColorOutput "✓ Model changed to: $newModel" "Green"
+    Write-ColorOutput "[OK] Model changed to: $newModel" "Green"
     
     # Check if model is downloaded
     $existingModels = ollama list 2>$null
@@ -152,9 +152,9 @@ function Change-Model {
         Write-Host ""
         $download = Read-Host "Model not downloaded. Download now? (y/N)"
         if ($download -eq "y" -or $download -eq "Y") {
-            Write-ColorOutput "📥 Downloading $newModel..." "Blue"
+            Write-ColorOutput "[download] Downloading $newModel..." "Blue"
             ollama pull $newModel
-            Write-ColorOutput "✓ Download complete" "Green"
+            Write-ColorOutput "[OK] Download complete" "Green"
         }
     }
 }
@@ -299,15 +299,15 @@ function Main {
     if ($confirmation -eq "y" -or $confirmation -eq "Y") {
         Write-Host ""
         Write-ColorOutput "Executing..." "Blue"
-        Write-Host "─────────────────────────────────────"
+        Write-Host "-------------------------------------"
         try {
             Invoke-Expression $suggestedCommand
         }
         catch {
             Write-ColorOutput "Error: $($_.Exception.Message)" "Red"
         }
-        Write-Host "─────────────────────────────────────"
-        Write-ColorOutput "✓ Done" "Green"
+        Write-Host "-------------------------------------"
+        Write-ColorOutput "[OK] Done" "Green"
     }
     else {
         Write-ColorOutput "Command not executed." "Yellow"

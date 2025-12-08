@@ -20,27 +20,27 @@ function Write-Step {
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "✓ $Message" -ForegroundColor Green
+    Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
 function Write-Warning {
     param([string]$Message)
-    Write-Host "⚠ $Message" -ForegroundColor Yellow
+    Write-Host "[!] $Message" -ForegroundColor Yellow
 }
 
 function Write-Error {
     param([string]$Message)
-    Write-Host "✗ $Message" -ForegroundColor Red
+    Write-Host "[X] $Message" -ForegroundColor Red
 }
 
 # Banner
 function Show-Banner {
     Write-Host ""
-    Write-Host "  ┌─────────────────────────────────────┐" -ForegroundColor Cyan
-    Write-Host "  │       🦙 shlama installer           │" -ForegroundColor Cyan
-    Write-Host "  │   Natural language → shell commands │" -ForegroundColor Cyan
-    Write-Host "  │            Windows Edition          │" -ForegroundColor Cyan
-    Write-Host "  └─────────────────────────────────────┘" -ForegroundColor Cyan
+    Write-Host "  +-------------------------------------+" -ForegroundColor Cyan
+    Write-Host "  |        shlama installer           |" -ForegroundColor Cyan
+    Write-Host "  |   Natural language -> shell commands |" -ForegroundColor Cyan
+    Write-Host "  |            Windows Edition          |" -ForegroundColor Cyan
+    Write-Host "  +-------------------------------------+" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -53,14 +53,14 @@ function Test-Admin {
 
 # Install Ollama
 function Install-Ollama {
-    Write-Step "🦙 Checking Ollama..."
+    Write-Step " Checking Ollama..."
     
     if (Get-Command ollama -ErrorAction SilentlyContinue) {
         Write-Success "Ollama already installed"
         return
     }
     
-    Write-Host "→ Installing Ollama..." -ForegroundColor Blue
+    Write-Host "-> Installing Ollama..." -ForegroundColor Blue
     
     # Download and run Ollama installer
     $installerUrl = "https://ollama.com/download/OllamaSetup.exe"
@@ -84,7 +84,7 @@ function Install-Ollama {
 
 # Start Ollama service
 function Start-OllamaService {
-    Write-Step "🚀 Starting Ollama..."
+    Write-Step " Starting Ollama..."
     
     # Check if already running
     try {
@@ -138,7 +138,7 @@ function Install-Model {
     
     # First time install - show model selection
     Write-Host ""
-    Write-Host "🤖 Choose an AI model:" -ForegroundColor Cyan
+    Write-Host " Choose an AI model:" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  1) llama3.2     - Fast & light (~2GB) [Recommended]"
     Write-Host "  2) llama3.2:1b  - Fastest, minimal (~1.3GB)"
@@ -172,7 +172,7 @@ function Install-Model {
     }
     Set-Content -Path $configFile -Value $model
     
-    Write-Step "📥 Pulling model ($model)..."
+    Write-Step " Pulling model ($model)..."
     
     # Check if model exists
     $existingModels = ollama list 2>$null
@@ -181,7 +181,7 @@ function Install-Model {
         return
     }
     
-    Write-Host "→ Downloading $model (this may take a few minutes)..." -ForegroundColor Blue
+    Write-Host "-> Downloading $model (this may take a few minutes)..." -ForegroundColor Blue
     ollama pull $model
     Write-Success "Model $model downloaded"
     Write-Success "Model saved. To change later, run: shlama --model"
@@ -189,7 +189,7 @@ function Install-Model {
 
 # Install shlama
 function Install-Shlama {
-    Write-Step "📥 Installing shlama..."
+    Write-Step " Installing shlama..."
     
     # Create installation directory
     $installDir = "$env:LOCALAPPDATA\shlama"
