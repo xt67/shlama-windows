@@ -154,7 +154,7 @@ Contributions are welcome! Feel free to:
 
 If you find shlama useful, consider supporting its development:
 
-<a href="https://www.buymeacoffee.com/xt67" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" ></a> <a href="https://onlychai.neocities.org/support.html?name=Rayyan%20Rahman&upi=onlystudies790-1%40oksbi" target="_blank"><img src="https://img.shields.io/badge/Buy%20me%20a%20chai-%E2%98%95-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white" alt="Buy Me A Chai" height="50" ></a>
+<a href="https://www.buymeacoffee.com/xt67" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" ></a> <a href="https://onlychai.neocities.org/support.html?name=Rayyan%20Rahman&upi=onlystudies790-1%40oksbi" target="_blank"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a chai&emoji=🍵&slug=onlychai&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" alt="Buy Me A Chai" height="50" ></a>
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/xt67)
 
