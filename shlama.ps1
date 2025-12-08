@@ -16,10 +16,14 @@
 .PARAMETER Version
     Show version information.
 
+.PARAMETER Model
+    Change the AI model.
+
 .EXAMPLE
     shlama "list all files"
     shlama "show disk space"
     shlama "find large files"
+    shlama --model
 
 .LINK
     https://github.com/xt67/shlama-windows
@@ -33,13 +37,28 @@ param(
     [switch]$Help,
     
     [Alias("v")]
-    [switch]$ShowVersion
+    [switch]$ShowVersion,
+    
+    [Alias("m")]
+    [switch]$Model
 )
 
 # Configuration
-$script:MODEL = if ($env:SHLAMA_MODEL) { $env:SHLAMA_MODEL } else { "llama3.2" }
+$script:CONFIG_FILE = "$env:LOCALAPPDATA\shlama\config"
 $script:OLLAMA_HOST = if ($env:OLLAMA_HOST) { $env:OLLAMA_HOST } else { "http://localhost:11434" }
-$script:SHLAMA_VERSION = "1.0.0"
+$script:SHLAMA_VERSION = "1.1.0"
+
+# Load saved model from config
+function Get-SavedModel {
+    if (Test-Path $script:CONFIG_FILE) {
+        return (Get-Content $script:CONFIG_FILE -Raw).Trim()
+    }
+    return $null
+}
+
+# Set model with priority: env > config > default
+$savedModel = Get-SavedModel
+$script:MODEL = if ($env:SHLAMA_MODEL) { $env:SHLAMA_MODEL } elseif ($savedModel) { $savedModel } else { "llama3.2" }
 
 # Colors
 function Write-ColorOutput {
@@ -64,8 +83,15 @@ function Show-Help {
     Write-Host "  shlama `"show running processes`""
     Write-Host "  shlama `"get my ip address`""
     Write-Host ""
+    Write-Host "Commands:"
+    Write-Host "  shlama --model, -m   Change the AI model"
+    Write-Host "  shlama --version, -v Show version"
+    Write-Host "  shlama --help, -h    Show this help"
+    Write-Host ""
+    Write-Host "Current model: $script:MODEL"
+    Write-Host ""
     Write-Host "Environment variables:"
-    Write-Host "  SHLAMA_MODEL    - Ollama model to use (default: llama3.2)"
+    Write-Host "  SHLAMA_MODEL    - Ollama model to use (overrides saved config)"
     Write-Host "  OLLAMA_HOST     - Ollama API host (default: http://localhost:11434)"
     Write-Host ""
 }
@@ -73,6 +99,64 @@ function Show-Help {
 # Show version
 function Show-Version {
     Write-Host "shlama v$script:SHLAMA_VERSION (Windows)"
+}
+
+# Change model
+function Change-Model {
+    Write-Host ""
+    Write-ColorOutput "🤖 Select AI Model" "Cyan"
+    Write-Host ""
+    Write-Host "Current model: $script:MODEL"
+    Write-Host ""
+    Write-Host "  1) llama3.2     - Fast & light (~2GB)"
+    Write-Host "  2) llama3.2:1b  - Fastest, minimal (~1.3GB)"
+    Write-Host "  3) llama3       - Balanced (~4.7GB)"
+    Write-Host "  4) mistral      - Good quality (~4.1GB)"
+    Write-Host "  5) Custom       - Enter custom model name"
+    Write-Host "  0) Cancel"
+    Write-Host ""
+    
+    $choice = Read-Host "Select model [0-5]"
+    
+    $newModel = switch ($choice) {
+        "1" { "llama3.2" }
+        "2" { "llama3.2:1b" }
+        "3" { "llama3" }
+        "4" { "mistral" }
+        "5" { 
+            $custom = Read-Host "Enter model name"
+            if ([string]::IsNullOrWhiteSpace($custom)) { return }
+            $custom.Trim()
+        }
+        "0" { return }
+        default { return }
+    }
+    
+    if ([string]::IsNullOrWhiteSpace($newModel)) {
+        Write-ColorOutput "Cancelled." "Yellow"
+        return
+    }
+    
+    # Save to config
+    $configDir = Split-Path $script:CONFIG_FILE -Parent
+    if (-not (Test-Path $configDir)) {
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    }
+    Set-Content -Path $script:CONFIG_FILE -Value $newModel
+    
+    Write-ColorOutput "✓ Model changed to: $newModel" "Green"
+    
+    # Check if model is downloaded
+    $existingModels = ollama list 2>$null
+    if ($existingModels -notmatch [regex]::Escape($newModel)) {
+        Write-Host ""
+        $download = Read-Host "Model not downloaded. Download now? (y/N)"
+        if ($download -eq "y" -or $download -eq "Y") {
+            Write-ColorOutput "📥 Downloading $newModel..." "Blue"
+            ollama pull $newModel
+            Write-ColorOutput "✓ Download complete" "Green"
+        }
+    }
 }
 
 # Check if Ollama is running
@@ -133,12 +217,19 @@ function Main {
         return
     }
     
+    if ($Model) {
+        Change-Model
+        return
+    }
+    
     # Check if request was provided
     $requestText = $Request -join " "
     if ([string]::IsNullOrWhiteSpace($requestText)) {
         Write-ColorOutput "Error: Please provide a natural language request." "Red"
         Write-Host "Usage: shlama `"<request>`""
         Write-Host "Example: shlama `"list all files`""
+        Write-Host ""
+        Write-Host "Run 'shlama --help' for more options."
         return
     }
     

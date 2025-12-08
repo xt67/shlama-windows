@@ -2,7 +2,7 @@
 
 *Your terminal llama. Natural language → safe Windows commands. Powered by Ollama.*
 
-> **🐧 Looking for Linux?** Check out [shlama for Linux](https://github.com/xt67/shlama)
+> **🐧 Looking for Linux?** Check out [shlama for Linux](https://github.com/xt67/shlama-linux)
 
 shlama is a CLI companion that turns natural language into shell commands using a local LLM (Ollama).  
 You ask for something, it suggests a command, and **you approve before execution**.
@@ -97,17 +97,27 @@ shlama "update all apps"
 
 ## ⚙️ Configuration
 
-Configure shlama using environment variables:
+### Changing the AI Model
+
+You can change the AI model at any time:
+
+```powershell
+shlama --model
+```
+
+This opens an interactive menu to select a different model.
+
+### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SHLAMA_MODEL` | `llama3.2` | Ollama model to use |
+| `SHLAMA_MODEL` | `llama3.2` | Ollama model to use (overrides saved config) |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama API endpoint |
 
 ### Examples
 
 ```powershell
-# Use a different model
+# Use a different model temporarily
 $env:SHLAMA_MODEL = "mistral"
 shlama "list files"
 
@@ -158,7 +168,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🔗 Related
 
-- **[shlama for Linux](https://github.com/xt67/shlama)** - The original Linux version
+- **[shlama for Linux](https://github.com/xt67/shlama-linux)** - The original Linux version
 - [Ollama](https://ollama.com) - Local LLM runtime
 
 ---

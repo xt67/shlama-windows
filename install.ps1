@@ -113,6 +113,30 @@ function Start-OllamaService {
 
 # Select and pull model
 function Install-Model {
+    $configFile = "$env:LOCALAPPDATA\shlama\config"
+    
+    # Check if already configured (not first install)
+    if (Test-Path $configFile) {
+        $savedModel = (Get-Content $configFile -Raw).Trim()
+        Write-Success "Model already configured: $savedModel"
+        Write-Host "  To change model later, run: shlama --model" -ForegroundColor Blue
+        
+        # Check if model is downloaded
+        $existingModels = ollama list 2>$null
+        if ($existingModels -match [regex]::Escape($savedModel)) {
+            Write-Success "Model $savedModel is available"
+        }
+        else {
+            Write-Warning "Model $savedModel not downloaded"
+            $download = Read-Host "Download now? (y/N)"
+            if ($download -eq "y" -or $download -eq "Y") {
+                ollama pull $savedModel
+            }
+        }
+        return
+    }
+    
+    # First time install - show model selection
     Write-Host ""
     Write-Host "🤖 Choose an AI model:" -ForegroundColor Cyan
     Write-Host ""
@@ -137,9 +161,16 @@ function Install-Model {
     
     if ($null -eq $model) {
         Write-Warning "Skipping model download"
-        Write-Warning "Run 'ollama pull <model>' later to download a model"
+        Write-Warning "Run 'shlama --model' later to select a model"
         return
     }
+    
+    # Save model to config
+    $configDir = Split-Path $configFile -Parent
+    if (-not (Test-Path $configDir)) {
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    }
+    Set-Content -Path $configFile -Value $model
     
     Write-Step "📥 Pulling model ($model)..."
     
@@ -153,6 +184,7 @@ function Install-Model {
     Write-Host "→ Downloading $model (this may take a few minutes)..." -ForegroundColor Blue
     ollama pull $model
     Write-Success "Model $model downloaded"
+    Write-Success "Model saved. To change later, run: shlama --model"
 }
 
 # Install shlama
