@@ -40,7 +40,7 @@ param(
     [switch]$ShowVersion,
     
     [Alias("m")]
-    [switch]$Model
+    [switch]$SelectModel
 )
 
 # Configuration
@@ -217,7 +217,7 @@ function Main {
         return
     }
     
-    if ($Model) {
+    if ($SelectModel) {
         Change-Model
         return
     }
