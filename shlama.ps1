@@ -178,12 +178,24 @@ function Start-OllamaIfNeeded {
     # Try to start Ollama
     Write-Host "Starting Ollama..." -ForegroundColor Yellow
     
-    # Start Ollama in background
-    Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    # Try different methods to start Ollama
+    $ollamaApp = "$env:LOCALAPPDATA\Programs\Ollama\ollama app.exe"
+    $ollamaExe = "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe"
     
-    # Wait for it to start (max 10 seconds)
+    if (Test-Path $ollamaApp) {
+        # Start the Ollama app (GUI with tray icon)
+        Start-Process $ollamaApp -ErrorAction SilentlyContinue
+    } elseif (Test-Path $ollamaExe) {
+        # Fall back to ollama serve
+        Start-Process $ollamaExe -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    } else {
+        # Try from PATH
+        Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    }
+    
+    # Wait for it to start (max 15 seconds)
     $attempts = 0
-    while ($attempts -lt 20) {
+    while ($attempts -lt 30) {
         Start-Sleep -Milliseconds 500
         if (Test-Ollama) {
             Write-Host "[OK] Ollama started" -ForegroundColor Green
